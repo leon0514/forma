@@ -91,6 +91,10 @@ int main()
 - `float intersection_box_area(const object::Box& box1, const object::Box& box2)`
   - **功能**: 计算两个矩形框的交集面积。
 
+- `bool point_in_box(const object::PosePoint& pose_point, const object::Box& box)`
+  - **功能**: 判断一个点是否在矩形框内。
+  - **说明**: 通过检查点的坐标是否在矩形框的边界内来确定。
+
 #### 分割掩码函数
 
 - `float mask_area(const object::Segmentation& segmentation)`
@@ -103,6 +107,10 @@ int main()
 
 - `float intersection_mask_area(const object::Segmentation& segmentation1, const object::Segmentation& segmentation2)`
   - **功能**: 计算两个分割掩码的交集面积。
+
+- `bool point_in_mask(const object::PosePoint& pose_point, const object::Segmentation& segmentation)`
+  - **功能**: 判断一个点是否在分割掩码内。
+  - **说明**: 通过检查点的坐标对应在掩码中的值是否非零来确定。
 
 - `float intersection_over_min_mask_ratio(const object::Segmentation& segmentation1, const object::Segmentation& segmentation2)`
   - **功能**: 计算两个掩码的交集面积与两者中较小面积的比值。

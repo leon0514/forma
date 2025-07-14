@@ -92,6 +92,25 @@ float box_mask_iou(const object::Box& box, const object::Segmentation& segmentat
  float intersection_over_min_box_mask_ratio(const object::Box& box, const object::Segmentation& segmentation);
 
 /*
+ * @brief 判断点是否在矩形框内
+ * @note 判断点是否在矩形框内 = 点是否在矩形框的四个顶点内
+ * @param point 点
+ * @param box 矩形框
+ * @return 点是否在矩形框内
+ */
+bool point_in_box(const object::PosePoint& pose_point, const object::Box& box);
+
+
+/*
+ * @brief 判断点是否在mask内
+ * @note 判断点是否在mask内 = 点是否在mask的每个非0像素内
+ * @param point 点
+ * @param segmentation mask
+ * @return 点是否在mask内
+ */
+bool point_in_mask(const object::PosePoint& pose_point, const object::Segmentation& segmentation);
+
+/*
  * @brief 判断点是否在电子围栏内
  * 
  * @param point 点
