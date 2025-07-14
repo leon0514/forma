@@ -30,9 +30,12 @@ Forma 是一个为计算机视觉应用设计的 C++ 库，专注于处理二维
 
 ## 依赖
 
-- C++11 或更高版本
+- C++14 或更高版本
 - OpenCV
-- Boost (特别是 Boost.Geometry)
+- Boost (特别是 Boost.Geometry 1.74版本)
+```
+sudo apt install libboost-dev
+```
 
 ## 构建
 
