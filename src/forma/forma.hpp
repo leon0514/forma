@@ -39,6 +39,16 @@ float box_iou(const object::Box& box1, const object::Box& box2);
 float intersection_box_area(const object::Box& box1, const object::Box& box2);
 
 /*
+ * @brief 计算相交矩形框面积和最小面积的比例
+ * @note 相交矩形框面积和最小面积的比例 = 相交矩形框面积 / 最小面积
+ * @param box1 矩形框1
+ * @param box2 矩形框2
+ * @return 相交矩形框面积和最小面积的比例
+ */
+float intersection_over_min_box_ratio(const object::Box& box1, const object::Box& box2);
+
+
+/*
  * @brief 计算mask面积
  * @note mask面积 = mask中非0像素的个数
  * @param segmentation mask
