@@ -8,23 +8,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenCV REQUIRED COMPONENTS core imgproc)
 find_package(Boost REQUIRED)
 
-set(SOURCES
-    src/tests.cpp
+add_library(forma SHARED
     src/forma/forma.cpp
 )
-
-# Create executable
-add_executable(tests ${SOURCES})
-target_include_directories(tests PRIVATE 
+target_include_directories(forma PUBLIC 
 ${OpenCV_INCLUDE_DIRS}
 src
 )
 
 # Link libraries
-target_link_libraries(tests PRIVATE 
+target_link_libraries(forma PRIVATE 
     # 链接 Boost 的头文件接口
     Boost::headers
     # 链接所有找到的 OpenCV 库
     ${OpenCV_LIBS}
 
 )
+
+# CMAKE_CURRENT_BINARY_DIR 包含了生成的头文件，需要添加到包含路径
+target_include_directories(forma PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# Create executable
+add_executable(tests src/tests.cpp)
+target_link_libraries(tests PRIVATE forma ${OpenCV_LIBS})
