@@ -374,4 +374,33 @@ namespace forma
         return boost::geometry::covered_by(point, mask_polygons);
     }
 
+    bool point_in_box(const std::tuple<float, float>& point, const object::Box &box)
+    {
+        float x = std::get<0>(point);
+        float y = std::get<1>(point);
+        // 这是最高效的判断方式，无需转换为多边形
+        return x >= box.left && x <= box.right &&
+               y >= box.top && y <= box.bottom;
+    }
+
+    bool point_in_mask(const std::tuple<float, float>& point, const object::Segmentation &segmentation)
+    {
+        // --- REFACTORED: Now uses geometric check ---
+        // 尽管像素检查可能更快，但为了保持几何计算的一致性，这里也使用Boost.Geometry
+        float x = std::get<0>(point);
+        float y = std::get<1>(point);
+        BoostPoint boost_point(x, y);
+        BoostMultiPolygon mask_polygons = mask2polygon(segmentation);
+        return boost::geometry::covered_by(boost_point, mask_polygons);
+    }
+
+    bool point_in_fence(const std::tuple<float, float>& point, const std::vector<std::tuple<float, float>> &fence)
+    {
+        float x = std::get<0>(point);
+        float y = std::get<1>(point);
+        BoostPoint boost_point(x, y);
+        BoostPolygon fence_polygon = fence2polygon(fence);
+        return boost::geometry::covered_by(boost_point, fence_polygon);
+    }
+
 } // namespace forma

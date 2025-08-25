@@ -126,6 +126,33 @@ namespace forma
     bool point_in_fence(const object::PosePoint &pose_point, const std::vector<std::tuple<float, float>> &fence);
 
     /*
+     * @brief 判断点是否在矩形框内
+     * @note 判断点是否在矩形框内 = 点是否在矩形框的四个顶点内
+     * @param point 点
+     * @param box 矩形框
+     * @return 点是否在矩形框内
+     */
+    bool point_in_box(const std::tuple<float, float>& point, const object::Box &box);
+
+    /*
+     * @brief 判断点是否在mask内
+     * @note 判断点是否在mask内 = 点是否在mask的每个非0像素内
+     * @param point 点
+     * @param segmentation mask
+     * @return 点是否在mask内
+     */
+    bool point_in_mask(const std::tuple<float, float>& point, const object::Segmentation &segmentation);
+
+    /*
+     * @brief 判断点是否在电子围栏内
+     *
+     * @param point 点
+     * @param fence 电子围栏
+     * @return 点是否在电子围栏内
+     */
+    bool point_in_fence(const std::tuple<float, float>& point, const std::vector<std::tuple<float, float>> &fence);
+
+    /*
      * @brief 判断矩形框是否在电子围栏内
      * @note 判断矩形框是否在电子围栏内 = 矩形框的每个顶点是否在电子围栏内
      * @param box 矩形框
