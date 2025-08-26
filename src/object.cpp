@@ -3,8 +3,6 @@
 
 namespace object
 {
-
-    // Box 实现 (无变化)
     Box::Box(float l, float t, float r, float b)
         : left(l), top(t), right(r), bottom(b) {}
 
@@ -18,7 +16,6 @@ namespace object
         return os;
     }
 
-    // PosePoint 实现 (无变化)
     PosePoint::PosePoint(float x, float y, float vis) : x(x), y(y), vis(vis) {}
 
     std::ostream &operator<<(std::ostream &os, const PosePoint &point)
@@ -30,7 +27,6 @@ namespace object
         return os;
     }
 
-    // Obb 实现 (无变化)
     Obb::Obb(float cx, float cy, float w, float h, float angle)
         : cx(cx), cy(cy), w(w), h(h), angle(angle) {}
 
@@ -45,7 +41,6 @@ namespace object
         return os;
     }
 
-    // Segmentation 实现 (无变化)
     Segmentation::Segmentation(const Segmentation &other) : mask(other.mask.clone()) {}
 
     Segmentation &Segmentation::operator=(const Segmentation &other)
@@ -57,7 +52,6 @@ namespace object
         return *this;
     }
 
-    // Depth 实现 (无变化)
     Depth::Depth(const Depth &other) : depth(other.depth.clone()), fog_data(other.fog_data) {}
 
     Depth &Depth::operator=(const Depth &other)
@@ -195,9 +189,12 @@ namespace object
         case ObjectType::DEPTH_PRO:
             os << "{ \"type\": \"DEPTH_PRO\" }";
             break;
-
+        case ObjectType::POSITION:
+            os << "{ \"type\": \"POSITION\", \"box\": " << box.box;
+            print_common_fields(box);
+            os << " }";
+            break;
         case ObjectType::UNKNOW:
-        case ObjectType::POSITION: // 假设 POSITION 暂时没有特定输出
         default:
             os << "{ \"type\": \"UNKNOW\" }";
             break;
