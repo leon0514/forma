@@ -5,7 +5,9 @@
 
 #include <string>
 #include <vector>
-#include <ostream> // 包含 ostream 用于友元函数声明
+#include <tuple>     // 保留 tuple
+#include <ostream>
+#include <optional>  // C++17, 用于优化内存
 #include "opencv2/opencv.hpp"
 
 namespace object
@@ -34,14 +36,12 @@ namespace object
         Box() = default;
         Box(float l, float t, float r, float b);
 
-        // 简单函数，适合内联
         float width() const noexcept { return right - left; }
         float height() const noexcept { return bottom - top; }
         float center_x() const noexcept { return (left + right) / 2; }
         float center_y() const noexcept { return (top + bottom) / 2; }
         float area() const noexcept { return width() * height(); }
 
-        // 声明友元函数
         friend std::ostream &operator<<(std::ostream &os, const Box &box);
     };
 
@@ -54,7 +54,6 @@ namespace object
         PosePoint() = default;
         PosePoint(float x, float y, float vis);
 
-        // 声明友元函数
         friend std::ostream &operator<<(std::ostream &os, const PosePoint &point);
     };
 
@@ -75,36 +74,25 @@ namespace object
         Obb() = default;
         Obb(float cx, float cy, float w, float h, float angle);
 
-        // 简单函数，适合内联
         float area() const { return w * h; }
 
-        // 声明友元函数
         friend std::ostream &operator<<(std::ostream &os, const Obb &obb);
     };
 
+    // 改进：遵循“零之法则”，移除不必要的特殊成员函数声明。
+    // cv::Mat 已经能很好地管理自己的资源。
     struct Segmentation
     {
         cv::Mat mask;
-
-        Segmentation() = default;
-        Segmentation(const Segmentation &other);            // 声明拷贝构造
-        Segmentation &operator=(const Segmentation &other); // 声明拷贝赋值
-        Segmentation(Segmentation &&other) = default;
-        Segmentation &operator=(Segmentation &&other) = default;
     };
 
+    // 改进：同样遵循“零之法则”。
     struct Depth
     {
         cv::Mat depth;
         float fog_data = 0.0f;
 
-        Depth() = default;
-        Depth(const Depth &other);            // 声明拷贝构造
-        Depth &operator=(const Depth &other); // 声明拷贝赋值
-        Depth(Depth &&other) = default;
-        Depth &operator=(Depth &&other) = default;
-
-        // 声明成员函数
+        // 成员函数声明
         float point_depth(int x, int y) const;
         float average_depth() const;
         float min_depth() const;
@@ -113,6 +101,7 @@ namespace object
         float area_average_depth(const Box &box) const;
     };
 
+    // 保持不变，根据您的要求使用 std::tuple
     struct Track
     {
         int track_id = -1;
@@ -120,21 +109,25 @@ namespace object
         friend std::ostream &operator<<(std::ostream &os, const Track &track);
     };
 
+    // 核心改进：使用 std::optional 包装可选成员，极大地节省内存
+    // 并明确地表达了哪些数据是可能不存在的。
     struct DetectionBox
     {
+        // --- 核心/必须存在的数据 ---
         ObjectType type = ObjectType::UNKNOW;
         Box box;
-        Pose pose;
-        Obb obb;
-        Segmentation segmentation;
-        Depth depth;
-        Track track;
-
         float score = 0.0f;
         int class_id = -1;
         std::string class_name;
 
-        // 声明友元函数
+        // --- 可选的数据 ---
+        std::optional<Pose> pose;
+        std::optional<Obb> obb;
+        std::optional<Segmentation> segmentation;
+        std::optional<Depth> depth;
+        std::optional<Track> track;
+
+        // 友元函数声明
         friend std::ostream &operator<<(std::ostream &os, const DetectionBox &box);
     };
 
