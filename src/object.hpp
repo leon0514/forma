@@ -5,14 +5,13 @@
 
 #include <string>
 #include <vector>
-#include <tuple>     // 保留 tuple
+#include <tuple>
 #include <ostream>
-#include <optional>  // C++17, 用于优化内存
+#include <optional>
 #include "opencv2/opencv.hpp"
 
 namespace object
 {
-
     enum class ObjectType
     {
         UNKNOW = -1,
@@ -79,14 +78,11 @@ namespace object
         friend std::ostream &operator<<(std::ostream &os, const Obb &obb);
     };
 
-    // 改进：遵循“零之法则”，移除不必要的特殊成员函数声明。
-    // cv::Mat 已经能很好地管理自己的资源。
     struct Segmentation
     {
         cv::Mat mask;
     };
 
-    // 改进：同样遵循“零之法则”。
     struct Depth
     {
         cv::Mat depth;
@@ -101,7 +97,6 @@ namespace object
         float area_average_depth(const Box &box) const;
     };
 
-    // 保持不变，根据您的要求使用 std::tuple
     struct Track
     {
         int track_id = -1;
@@ -110,7 +105,6 @@ namespace object
     };
 
     // 核心改进：使用 std::optional 包装可选成员，极大地节省内存
-    // 并明确地表达了哪些数据是可能不存在的。
     struct DetectionBox
     {
         // --- 核心/必须存在的数据 ---
