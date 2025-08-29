@@ -58,6 +58,12 @@ namespace object
         friend std::ostream &operator<<(std::ostream &os, const PosePoint &point);
     };
 
+    struct Pose
+    {
+        std::vector<PosePoint> points;
+        friend std::ostream &operator<<(std::ostream &os, const Pose &pose);
+    };
+
     struct Obb
     {
         float cx = 0.0f;
@@ -107,18 +113,25 @@ namespace object
         float area_average_depth(const Box &box) const;
     };
 
+    struct Track
+    {
+        int track_id = -1;
+        std::vector<std::tuple<float, float>> track_trace;
+        friend std::ostream &operator<<(std::ostream &os, const Track &track);
+    };
+
     struct DetectionBox
     {
         ObjectType type = ObjectType::UNKNOW;
         Box box;
-        std::vector<PosePoint> pose_points;
+        Pose pose;
         Obb obb;
         Segmentation segmentation;
         Depth depth;
+        Track track;
 
         float score = 0.0f;
         int class_id = -1;
-        int track_id = -1;
         std::string class_name;
 
         // 声明友元函数

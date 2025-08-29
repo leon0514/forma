@@ -41,6 +41,39 @@ namespace object
         return os;
     }
 
+    std::ostream &operator<<(std::ostream &os, const Track &track)
+    {
+        os << "{ \"track_id\": " << track.track_id
+           << ", \"track_trace\": [";
+        for (size_t i = 0; i < track.track_trace.size(); ++i)
+        {
+            float x, y;
+            std::tie(x, y) = track.track_trace[i];
+            os << "{ \"x\": " << x << ", \"y\": " << y << " }";
+            if (i < track.track_trace.size() - 1)
+            {
+                os << ", ";
+            }
+        }
+        os << "] }";
+        return os;
+    }
+
+    std::ostream &operator<<(std::ostream &os, const Pose &pose)
+    {
+        os << "{ \"Pose points\": [";
+        for (size_t i = 0; i < pose.points.size(); ++i)
+        {
+            os << pose.points[i];
+            if (i < pose.points.size() - 1)
+            {
+                os << ", ";
+            }
+        }
+        os << "] }";
+        return os;
+    }
+
     Segmentation::Segmentation(const Segmentation &other) : mask(other.mask.clone()) {}
 
     Segmentation &Segmentation::operator=(const Segmentation &other)
@@ -149,16 +182,8 @@ namespace object
             break;
 
         case ObjectType::POSE:
-            os << "{ \"type\": \"POSE\", \"pose_points\": [";
-            for (size_t i = 0; i < box.pose_points.size(); ++i)
-            {
-                os << box.pose_points[i];
-                if (i < box.pose_points.size() - 1)
-                {
-                    os << ", ";
-                }
-            }
-            os << "]";
+            os << "{ \"type\": \"POSE\", \"box\": " << box.box
+               << ", \"pose\": " << box.pose;
             print_common_fields(box);
             os << " }";
             break;
@@ -176,8 +201,7 @@ namespace object
             break;
 
         case ObjectType::TRACK:
-            os << "{ \"type\": \"TRACK\", \"box\": " << box.box
-               << ", \"track_id\": " << box.track_id;
+            os << "{ \"type\": \"TRACK\", \"trace\": " << box.track;
             print_common_fields(box);
             os << " }";
             break;
