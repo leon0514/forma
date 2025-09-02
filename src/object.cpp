@@ -140,6 +140,28 @@ namespace object
         return static_cast<float>(cv::mean(depth(roi))[0]);
     }
 
+    void Segmentation::keep_largest_part()
+    {
+        if (mask.empty()) return;
+
+        // 查找轮廓
+        std::vector<std::vector<cv::Point>> contours;
+        cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+        if (contours.empty()) return;
+
+        // 找到最大轮廓
+        auto max_contour = std::max_element(contours.begin(), contours.end(),
+                                             [](const std::vector<cv::Point> &a, const std::vector<cv::Point> &b) {
+                                                 return cv::contourArea(a) < cv::contourArea(b);
+                                             });
+
+        // 创建一个新的掩码，只保留最大轮廓
+        cv::Mat new_mask = cv::Mat::zeros(mask.size(), CV_8UC1);
+        cv::drawContours(new_mask, std::vector<std::vector<cv::Point>>{*max_contour}, -1, cv::Scalar(255), cv::FILLED);
+        mask = new_mask;
+    }
+
     //================================================================================
     // 已修改: DetectionBox 的输出流操作符重载
     // 这是最重要的修改。它不再使用僵化的 switch 结构，

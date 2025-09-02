@@ -81,6 +81,8 @@ namespace object
     struct Segmentation
     {
         cv::Mat mask;
+        // 分割区域可能有多个部分，使用findContours函数将最大的部分保留为mask
+        void keep_largest_part();
     };
 
     struct Depth
@@ -100,6 +102,8 @@ namespace object
     struct Track
     {
         int track_id = -1;
+        // 如果跟踪的是姿态的框，将其有的关键点也和追踪关联
+        std::optional<std::vector<Pose>> history_pose;
         std::vector<std::tuple<float, float>> track_trace;
         friend std::ostream &operator<<(std::ostream &os, const Track &track);
     };
