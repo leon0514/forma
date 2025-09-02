@@ -14,6 +14,7 @@ add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 
 add_library(forma SHARED
     src/forma/forma.cpp
+    src/object.hpp
 )
 target_include_directories(forma PUBLIC 
 ${OpenCV_INCLUDE_DIRS}
