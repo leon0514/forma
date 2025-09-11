@@ -1,4 +1,4 @@
-#include "infer/object.hpp" // 请确保这里的路径与您的项目结构匹配
+#include "object.hpp" // 请确保这里的路径与您的项目结构匹配
 #include <iostream>
 #include <string>
 #include <vector>
