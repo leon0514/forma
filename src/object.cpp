@@ -1,4 +1,4 @@
-#include "object.hpp" // 请确保这里的路径与您的项目结构匹配
+#include "infer/object.hpp" // 请确保这里的路径与您的项目结构匹配
 #include <iostream>
 #include <string>
 #include <vector>
@@ -160,6 +160,28 @@ namespace object
         cv::Mat new_mask = cv::Mat::zeros(mask.size(), CV_8UC1);
         cv::drawContours(new_mask, std::vector<std::vector<cv::Point>>{*max_contour}, -1, cv::Scalar(255), cv::FILLED);
         mask = new_mask;
+    }
+
+    Segmentation Segmentation::align_to_left_top(int left, int top, int width, int height) const
+    {
+        object::Segmentation aligned_seg;
+        // 原本的mask是相对于left,top的
+        // 现在我们需要创建一个新的mask，大小为width x height，并将原mask放置在新的mask中
+        cv::Mat aligned_mask = cv::Mat::zeros(height, width, mask.type());
+        if (mask.empty()) return aligned_seg;
+        // 计算放置位置
+        int x_offset = std::max(0, left);
+        int y_offset = std::max(0, top);
+        // 计算原mask在新mask中的有效区域
+        int copy_width = std::min(mask.cols, width - x_offset);
+        int copy_height = std::min(mask.rows, height - y_offset);
+        if (copy_width > 0 && copy_height > 0) {
+            cv::Rect src_roi(0, 0, copy_width, copy_height);
+            cv::Rect dst_roi(x_offset, y_offset, copy_width, copy_height);
+            mask(src_roi).copyTo(aligned_mask(dst_roi));
+        }
+        aligned_seg.mask = aligned_mask;
+        return aligned_seg;
     }
 
     //================================================================================

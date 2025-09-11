@@ -83,6 +83,7 @@ namespace object
         cv::Mat mask;
         // 分割区域可能有多个部分，使用findContours函数将最大的部分保留为mask
         void keep_largest_part();
+        Segmentation align_to_left_top(int left, int top, int width, int height) const;
     };
 
     struct Depth
