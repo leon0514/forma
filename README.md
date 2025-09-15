@@ -153,3 +153,14 @@ int main()
 
 - `float intersection_over_min_mask_fence_ratio(const object::Segmentation& segmentation, const std::vector<std::tuple<float, float>>& fence)`
   - **功能**: 计算分割掩码与围栏的交集面积与两者中较小面积的比值。
+
+
+#### 轨迹相关函数
+- CrossingDirection track_crossing_direction_box(const object::Track &track, const object::Box &box);   
+    - 功能 判断轨迹穿越矩形框(Box)的方向
+
+- CrossingDirection track_crossing_direction_fence(const object::Track &track, const object::Box &box);
+    - 功能 判断轨迹穿越围栏(Fence)的方向
+
+- CrossingDirection track_crossing_direction_segmentation(const object::Track &track, const object::Segmentation &segmentation);
+    - 功能 判断轨迹穿越分割区域(Segmentation)的方向
