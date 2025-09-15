@@ -15,6 +15,7 @@ namespace
     using BoostPoint = boost::geometry::model::point<float, 2, boost::geometry::cs::cartesian>;
     using BoostPolygon = boost::geometry::model::polygon<BoostPoint>;
     using BoostMultiPolygon = boost::geometry::model::multi_polygon<BoostPolygon>;
+    using BoostLineString = boost::geometry::model::linestring<BoostPoint>;
 
     // --- 内部辅助函数 ---
 
@@ -85,6 +86,76 @@ namespace
         }
         return metrics;
     }
+
+
+    /**
+     * @brief 模板函数：判断一个点是否在给定的几何图形内部
+     */
+    template<typename Geometry>
+    bool _is_point_inside_geometry(const BoostPoint& point, const Geometry& geom)
+    {
+        // covered_by 同时处理点在多边形内和在边界上的情况
+        return boost::geometry::covered_by(point, geom);
+    }
+
+    /**
+     * @brief 模板函数：分析轨迹穿越几何图形的方向
+     */
+    template<typename Geometry>
+    forma::CrossingDirection _get_track_crossing_direction_geometry(const object::Track &track, const Geometry &geom)
+    {
+        if (track.track_trace.size() < 2)
+        {
+            return forma::CrossingDirection::NONE;
+        }
+
+        bool has_entered = false;
+        bool has_exited = false;
+
+        // 获取轨迹起点的状态
+        const auto& first_point_tuple = track.track_trace.front();
+        BoostPoint first_point(std::get<0>(first_point_tuple), std::get<1>(first_point_tuple));
+        bool previous_is_inside = _is_point_inside_geometry(first_point, geom);
+
+        // 遍历轨迹的其余点
+        for (size_t i = 1; i < track.track_trace.size(); ++i)
+        {
+            const auto& current_point_tuple = track.track_trace[i];
+            BoostPoint current_point(std::get<0>(current_point_tuple), std::get<1>(current_point_tuple));
+            bool current_is_inside = _is_point_inside_geometry(current_point, geom);
+
+            if (!previous_is_inside && current_is_inside)
+            {
+                // 从外部进入内部
+                has_entered = true;
+            }
+            else if (previous_is_inside && !current_is_inside)
+            {
+                // 从内部离开到外部
+                has_exited = true;
+            }
+
+            previous_is_inside = current_is_inside;
+        }
+
+        // 根据记录的事件返回最终结果
+        if (has_entered && has_exited)
+        {
+            return forma::CrossingDirection::BOTH;
+        }
+        if (has_entered)
+        {
+            return forma::CrossingDirection::IN;
+        }
+        if (has_exited)
+        {
+            return forma::CrossingDirection::OUT;
+        }
+
+        return forma::CrossingDirection::NONE;
+    }
+
+
 } // 匿名命名空间结束
 
 namespace forma
@@ -270,6 +341,26 @@ namespace forma
         auto metrics = _calculate_intersection_metrics(mask_to_polygon(segmentation), fence_to_polygon(fence));
         float min_area = std::min(metrics.area1, metrics.area2);
         return (min_area <= 1e-6f) ? 0.0f : metrics.intersection_area / min_area;
+    }
+
+    CrossingDirection track_crossing_direction_box(const object::Track &track, const object::Box &box)
+    {
+        auto box_poly = box_to_polygon(box);
+        return _get_track_crossing_direction_geometry(track, box_poly);
+    }
+
+    CrossingDirection track_crossing_direction_fence(const object::Track &track, const std::vector<std::tuple<float, float>> &fence)
+    {
+        if (fence.size() < 3) return CrossingDirection::NONE;
+        auto fence_poly = fence_to_polygon(fence);
+        return _get_track_crossing_direction_geometry(track, fence_poly);
+    }
+
+    CrossingDirection track_crossing_direction_segmentation(const object::Track &track, const object::Segmentation &segmentation)
+    {
+        auto mask_polys = mask_to_polygon(segmentation);
+        if (boost::geometry::is_empty(mask_polys)) return CrossingDirection::NONE;
+        return _get_track_crossing_direction_geometry(track, mask_polys);
     }
 
 } // namespace forma
