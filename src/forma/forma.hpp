@@ -177,6 +177,53 @@ namespace forma
      */
     CrossingDirection track_crossing_direction_segmentation(const object::Track &track, const object::Segmentation &segmentation);
 
+
+    /*
+     * @brief 判断obb是否在电子围栏内
+     */
+    bool obb_in_fence(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence);
+
+    /*
+     * @brief 计算obb与电子围栏的iou
+     */
+    float obb_fence_iou(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence);
+
+    /*
+     * @brief 计算obb与矩形框的iou
+     */
+    float obb_box_iou(const object::Obb &obb, const object::Box &box);
+
+    /*
+     * @brief 计算obb与mask的iou
+     */
+    float obb_mask_iou(const object::Obb &obb, const object::Segmentation &segmentation);
+
+    /*
+     * @brief 计算obb与obb的iou
+     */
+    float obb_iou(const object::Obb &obb1, const object::Segmentation &obb2);
+
+
+    /*
+     * @brief 计算obb与电子围栏的最小面积比例
+     */
+    float intersection_over_min_obb_fence_ratio(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence);
+
+    /*
+     * @brief 计算obb与矩形框的最小面积比例
+     */
+    float intersection_over_min_obb_box_ratio(const object::Obb &obb, const object::Box &box);
+
+    /*
+     * @brief 计算obb与mask的最小面积比例
+     */
+    float intersection_over_min_obb_mask_ratio(const object::Obb &obb, const object::Segmentation &segmentation);
+
+     /*
+     * @brief 计算obb与obb的最小面积比例
+     */
+    float intersection_over_min_obb_ratio(const object::Obb &obb1, const object::Obb &obb2);
+
 };
 
 #endif // FORMA_HPP

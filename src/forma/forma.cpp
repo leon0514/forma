@@ -62,6 +62,50 @@ namespace
         return polygon;
     }
 
+
+    /**
+     * @brief 将 Obb (有向包围盒) 转换为 Boost 多边形
+     * @param obb
+     * @return BoostPolygon
+     */
+    BoostPolygon obb_to_polygon(const object::Obb &obb)
+    {
+        float cx = obb.cx;
+        float cy = obb.cy;
+        float w = obb.w;
+        float h = obb.h;
+        float angle_degrees = obb.angle;
+
+        float angle_radians = angle_degrees * M_PI / 180.0f;
+        float cos_a = std::cos(angle_radians);
+        float sin_a = std::sin(angle_radians);
+
+        // 定义相对于中心的未旋转的四个角点
+        std::vector<BoostPoint> local_corners = {
+            BoostPoint(w / 2, h / 2),
+            BoostPoint(-w / 2, h / 2),
+            BoostPoint(-w / 2, -h / 2),
+            BoostPoint(w / 2, -h / 2)};
+
+        BoostPolygon polygon;
+        for (const auto &p_local : local_corners)
+        {
+            float x_local = boost::geometry::get<0>(p_local);
+            float y_local = boost::geometry::get<1>(p_local);
+
+            // 应用旋转变换，然后平移到中心点
+            float x_world = x_local * cos_a - y_local * sin_a + cx;
+            float y_world = x_local * sin_a + y_local * cos_a + cy;
+
+            polygon.outer().push_back(BoostPoint(x_world, y_world));
+        }
+        // 闭合多边形
+        polygon.outer().push_back(polygon.outer().front());
+
+        boost::geometry::correct(polygon);
+        return polygon;
+    }
+
     // --- 核心优化逻辑 ---
     
     struct IntersectionMetrics
@@ -361,6 +405,67 @@ namespace forma
         auto mask_polys = mask_to_polygon(segmentation);
         if (boost::geometry::is_empty(mask_polys)) return CrossingDirection::NONE;
         return _get_track_crossing_direction_geometry(track, mask_polys);
+    }
+
+    bool obb_in_fence(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence)
+    {
+        return boost::geometry::covered_by(obb_to_polygon(obb), fence_to_polygon(fence));
+    }
+
+     float obb_fence_iou(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb), fence_to_polygon(fence));
+        float union_area = metrics.area1 + metrics.area2 - metrics.intersection_area;
+        return (union_area <= 1e-6f) ? 0.0f : metrics.intersection_area / union_area;
+    }
+
+    float obb_box_iou(const object::Obb &obb, const object::Box &box)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb), box_to_polygon(box));
+        float union_area = metrics.area1 + metrics.area2 - metrics.intersection_area;
+        return (union_area <= 1e-6f) ? 0.0f : metrics.intersection_area / union_area;
+    }
+
+    float obb_mask_iou(const object::Obb &obb, const object::Segmentation &segmentation)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb), mask_to_polygon(segmentation));
+        float union_area = metrics.area1 + metrics.area2 - metrics.intersection_area;
+        return (union_area <= 1e-6f) ? 0.0f : metrics.intersection_area / union_area;
+    }
+
+    float obb_iou(const object::Obb &obb1, const object::Obb &obb2)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb1), obb_to_polygon(obb2));
+        float union_area = metrics.area1 + metrics.area2 - metrics.intersection_area;
+        return (union_area <= 1e-6f) ? 0.0f : metrics.intersection_area / union_area;
+    }
+
+    float intersection_over_min_obb_fence_ratio(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb), fence_to_polygon(fence));
+        float min_area = std::min(metrics.area1, metrics.area2);
+        return (min_area <= 1e-6f) ? 0.0f : metrics.intersection_area / min_area;
+    }
+
+    float intersection_over_min_obb_box_ratio(const object::Obb &obb, const object::Box &box)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb), box_to_polygon(box));
+        float min_area = std::min(metrics.area1, metrics.area2);
+        return (min_area <= 1e-6f) ? 0.0f : metrics.intersection_area / min_area;
+    }
+
+    float intersection_over_min_obb_mask_ratio(const object::Obb &obb, const object::Segmentation &segmentation)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb), mask_to_polygon(segmentation));
+        float min_area = std::min(metrics.area1, metrics.area2);
+        return (min_area <= 1e-6f) ? 0.0f : metrics.intersection_area / min_area;
+    }
+
+    float intersection_over_min_obb_ratio(const object::Obb &obb1, const object::Obb &obb2)
+    {
+        auto metrics = _calculate_intersection_metrics(obb_to_polygon(obb1), obb_to_polygon(obb2));
+        float min_area = std::min(metrics.area1, metrics.area2);
+        return (min_area <= 1e-6f) ? 0.0f : metrics.intersection_area / min_area;
     }
 
 } // namespace forma

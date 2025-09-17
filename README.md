@@ -164,3 +164,23 @@ int main()
 
 - CrossingDirection track_crossing_direction_segmentation(const object::Track &track, const object::Segmentation &segmentation);
     - 功能 判断轨迹穿越分割区域(Segmentation)的方向
+
+#### 有向边界框 (OBB) 函数
+- bool obb_in_fence(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence)
+    - 功能: 判断一个有向边界框是否完全位于电子围栏内部。
+- float obb_fence_iou(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence)
+    - 功能: 计算一个有向边界框与电子围栏的交并比 (IoU)。
+- float obb_box_iou(const object::Obb &obb, const object::Box &box)
+    - 功能: 计算一个有向边界框与一个标准矩形框 (Box) 的交并比 (IoU)。
+- float obb_mask_iou(const object::Obb &obb, const object::Segmentation &segmentation)
+    - 功能: 计算一个有向边界框与一个分割掩码的交并比 (IoU)。
+- float obb_iou(const object::Obb &obb1, const object::Obb &obb2)
+    - 功能: 计算两个有向边界框之间的交并比 (IoU)。
+- float intersection_over_min_obb_fence_ratio(const object::Obb &obb, const std::vector<std::tuple<float, float>> &fence)
+    - 功能: 计算 OBB 与围栏的交集面积与两者中较小面积的比值。
+- float intersection_over_min_obb_box_ratio(const object::Obb &obb, const object::Box &box)
+    - 功能: 计算 OBB 与矩形框的交集面积与两者中较小面积的比值。
+- float intersection_over_min_obb_mask_ratio(const object::Obb &obb, const object::Segmentation &segmentation)
+    - 功能: 计算 OBB 与掩码的交集面积与两者中较小面积的比值。
+- float intersection_over_min_obb_ratio(const object::Obb &obb1, const object::Obb &obb2)
+    - 功能: 计算两个 OBB 的交集面积与两者中较小面积的比值。
