@@ -156,13 +156,13 @@ int main()
 
 
 #### 轨迹相关函数
-- CrossingDirection track_crossing_direction_box(const object::Track &track, const object::Box &box);   
+- `CrossingDirection track_crossing_direction_box(const object::Track &track, const object::Box &box);`  
     - 功能 判断轨迹穿越矩形框(Box)的方向
 
-- CrossingDirection track_crossing_direction_fence(const object::Track &track, const object::Box &box);
+- `CrossingDirection track_crossing_direction_fence(const object::Track &track, const object::Box &box);`
     - 功能 判断轨迹穿越围栏(Fence)的方向
 
-- CrossingDirection track_crossing_direction_segmentation(const object::Track &track, const object::Segmentation &segmentation);
+- `CrossingDirection track_crossing_direction_segmentation(const object::Track &track, const object::Segmentation &segmentation);`
     - 功能 判断轨迹穿越分割区域(Segmentation)的方向
 
 #### 有向边界框 (OBB) 函数
